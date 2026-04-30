@@ -1,7 +1,12 @@
 /**
  * DRACO - Cinematic Luxury Landing Page Logic
- * Features: Particle System, Countdown, Parallax, EmailJS
  */
+
+// Force scroll to top on refresh
+if (history.scrollRestoration) {
+  history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
 
 /* ──── PARTICLE / EMBER SYSTEM ──────────────── */
 (function() {
