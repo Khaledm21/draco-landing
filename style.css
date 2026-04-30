@@ -595,3 +595,75 @@ body {
   .brand-name { letter-spacing: 0.35em; padding-left: 0.35em; }
   .nav-bar { padding: 1rem 1.2rem; }
 }
+@media (max-width: 768px) {
+
+  /* اللوجو */
+  .logo {
+    width: 120px;
+  }
+
+  /* كلمة DRACO */
+  .hero-title {
+    font-size: 2.5rem;
+    letter-spacing: 0.3em;
+  }
+
+  /* Dropping Soon */
+  .hero-subtitle {
+    font-size: 0.9rem;
+    letter-spacing: 0.25em;
+  }
+
+  /* الكاونت داون */
+  .countdown {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .time-box {
+    width: 70px;
+    height: 70px;
+    font-size: 1.5rem;
+  }
+
+  /* الفورم */
+  .notify-form {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .notify-form input {
+    width: 100%;
+  }
+
+  .notify-form button {
+    width: 100%;
+  }
+
+  /* الناف بار */
+  .nav-bar {
+    padding: 1rem;
+  }
+
+  .nav-wordmark {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+  }
+
+  .nav-status {
+    font-size: 0.5rem;
+  }
+
+  /* الفوتر */
+  .footer {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .footer-text {
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+  }
+
+}
