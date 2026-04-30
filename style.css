@@ -15,6 +15,11 @@
   --gray: rgba(255,255,255,0.55);
 }
 
+html, body {
+  height: auto;
+  overflow-x: hidden;
+}
+
 html { scroll-behavior: smooth; }
 
 body {
@@ -27,7 +32,6 @@ body {
   padding-top: 80px;
   padding-left: 15px;
   padding-right: 15px;
-}
 }
 
 /* ──── CANVAS / BACKGROUND ──────────────── */
@@ -590,83 +594,129 @@ body {
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
 /* ──── RESPONSIVE ────────────────────────── */
-@media (max-width: 500px) {
-  .logo-img  { width: 160px; }
-  .logo-svg  { width: 120px; height: 145px; }
-  .count-sep { display: none; }
-  .countdown { gap: 1.2rem; }
-  .brand-name { letter-spacing: 0.35em; padding-left: 0.35em; }
-  .nav-bar { padding: 1rem 1.2rem; }
-}
 @media (max-width: 768px) {
-
-  /* اللوجو */
-  .logo {
-    width: 120px;
+  body {
+    padding-top: 60px;
+    padding-left: 20px;
+    padding-right: 20px;
+    cursor: auto; /* Show default cursor on touch devices */
   }
 
-  /* كلمة DRACO */
-  .hero-title {
-    font-size: 2.5rem;
-    letter-spacing: 0.3em;
-  }
-
-  /* Dropping Soon */
-  .hero-subtitle {
-    font-size: 0.9rem;
-    letter-spacing: 0.25em;
-  }
-
-  /* الكاونت داون */
-  .countdown {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .time-box {
-    width: 70px;
-    height: 70px;
-    font-size: 1.5rem;
-  }
-
-  /* الفورم */
-  .notify-form {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .notify-form input {
-    width: 100%;
-  }
-
-  .notify-form button {
-    width: 100%;
-  }
-
-  /* الناف بار */
   .nav-bar {
-    padding: 1rem;
+    padding: 1rem 1.5rem;
   }
 
   .nav-wordmark {
     font-size: 0.55rem;
+    letter-spacing: 0.3em;
+  }
+
+  .nav-bar::after {
+    left: 1.5rem;
+    right: 1.5rem;
+  }
+
+  .logo-img {
+    width: 150px;
+  }
+
+  .logo-ring { inset: -8px; }
+  .logo-tick { inset: -10px; }
+
+  .brand-name {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+    letter-spacing: 0.4em;
+    padding-left: 0.4em;
+    margin-bottom: 0.8rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    padding-left: 0.3em;
+    margin-bottom: 2.5rem;
+    color: rgba(255, 255, 255, 0.9); /* Higher contrast */
+  }
+
+  .countdown {
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+  }
+
+  .count-number {
+    font-size: 2.2rem;
+  }
+
+  .count-sep {
+    font-size: 2.2rem;
+    padding-bottom: 0.8rem;
+  }
+
+  .notify-wrap {
+    width: 100%;
+    margin-bottom: 3rem;
+  }
+
+  .notify-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.85); /* Much more visible */
     letter-spacing: 0.2em;
   }
 
-  .nav-status {
-    font-size: 0.5rem;
+  .notify-form {
+    flex-direction: column;
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    background: rgba(255, 0, 0, 0.05);
+    padding: 10px;
+    gap: 15px;
   }
 
-  /* الفوتر */
+  .notify-input {
+    width: 100%;
+    padding: 0.8rem;
+    text-align: center;
+    font-size: 1rem;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .notify-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 0.8rem;
+  }
+
+  .socials {
+    gap: 1.8rem;
+  }
+
+  .social-link {
+    color: rgba(255, 255, 255, 0.6); /* More visible */
+  }
+
   .footer {
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    margin-top: 80px;
+    padding-bottom: 40px;
     text-align: center;
+    position: static;
   }
 
   .footer-text {
-    font-size: 0.55rem;
-    letter-spacing: 0.15em;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.7);
   }
 
+  .footer-dot {
+    display: none; /* Hide dots on vertical stack */
+  }
+}
+
+/* Specific fix for very small screens */
+@media (max-width: 400px) {
+  .brand-name { font-size: 2.2rem; }
+  .countdown { gap: 0.8rem; }
+  .count-number { font-size: 1.8rem; }
 }
