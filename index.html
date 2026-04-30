@@ -1,939 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>DRACO â€” Coming Soon</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
-<style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-:root {
-  --black: #000000;
-  --red: #8B0000;
-  --red-mid: #a00000;
-  --red-bright: #c0392b;
-  --white: #ffffff;
-  --gray: rgba(255,255,255,0.45);
-  --gray-dim: rgba(255,255,255,0.18);
-  --gray-whisper: rgba(255,255,255,0.07);
-}
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: #000;
-  color: #fff;
-  font-family: 'Cinzel', serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-  cursor: default;
-}
-
-/* â”€â”€â”€ CANVAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-#canvas-bg {
-  position: fixed;
-  inset: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* â”€â”€â”€ RADIAL VIGNETTE + AMBIENCE â”€â”€â”€ */
-.vignette {
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 70% 75% at 50% 45%,
-      rgba(139,0,0,0.10) 0%,
-      transparent 65%),
-    radial-gradient(ellipse at center,
-      transparent 45%,
-      rgba(0,0,0,0.55) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* â”€â”€â”€ SCANLINE TEXTURE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.scanlines {
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 3px,
-    rgba(0,0,0,0.06) 3px,
-    rgba(0,0,0,0.06) 4px
-  );
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* â”€â”€â”€ PAGE LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.page {
-  position: relative;
-  z-index: 3;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 5vh 24px 8vh;
-  gap: 0;
-}
-
-/* â”€â”€â”€ TOP NAV LINE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.nav-bar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.4rem 2.5rem;
-  z-index: 10;
-  opacity: 0;
-  animation: fadeIn 1.6s ease 2s forwards;
-}
-.nav-bar::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 2rem; right: 2rem;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent,
-    rgba(139,0,0,0.4) 20%,
-    rgba(139,0,0,0.4) 80%,
-    transparent);
-}
-.nav-wordmark {
-  font-family: 'Cinzel', serif;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.45em;
-  color: rgba(255,255,255,0.25);
-  text-transform: uppercase;
-}
-.nav-status {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  color: var(--red);
-  text-transform: uppercase;
-}
-.nav-status::before {
-  content: 'â— ';
-  animation: blink 1.8s ease-in-out infinite;
-}
-
-/* â”€â”€â”€ LOGO WRAP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.logo-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 2.2rem;
-  opacity: 0;
-  animation: revealDrop 1.4s cubic-bezier(0.16,1,0.3,1) 0.4s forwards;
-  will-change: transform;
-}
-/* Subtle ambient glow behind logo */
-.logo-wrap::before {
-  content: '';
-  position: absolute;
-  inset: -20px;
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    rgba(139,0,0,0.18) 0%,
-    rgba(139,0,0,0.06) 50%,
-    transparent 72%);
-  animation: pulseGlow 4s ease-in-out infinite;
-  pointer-events: none;
-}
-/* Rotating dashed ring */
-.logo-ring {
-  position: absolute;
-  inset: -12px;
-  border-radius: 50%;
-  border: 1px solid rgba(139,0,0,0.18);
-  animation: rotateSlow 30s linear infinite;
-}
-.logo-ring::after {
-  content: '';
-  position: absolute;
-  inset: 14px;
-  border-radius: 50%;
-  border: 1px dashed rgba(139,0,0,0.10);
-  animation: rotateSlow 18s linear infinite reverse;
-}
-/* Diamond tick marks on ring */
-.logo-tick {
-  position: absolute;
-  inset: -14px;
-  border-radius: 50%;
-}
-.logo-tick::before, .logo-tick::after {
-  content: '';
-  position: absolute;
-  width: 5px; height: 5px;
-  background: var(--red);
-  transform: rotate(45deg);
-  top: 50%; left: -2.5px;
-  margin-top: -2.5px;
-  opacity: 0.6;
-}
-.logo-tick::after {
-  left: auto; right: -2.5px;
-}
-
-/* â”€â”€â”€ IMAGE LOGO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.logo-img {
-  width: 210px;
-  height: auto;
-  max-height: 240px;
-  object-fit: contain;
-  position: relative;
-  z-index: 2;
-  display: block;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  filter:
-    drop-shadow(0 0 12px rgba(139,0,0,0.55))
-    drop-shadow(0 0 35px rgba(139,0,0,0.20));
-  transition: filter 0.5s ease, transform 0.5s ease;
-  animation: logoBreath 4.5s ease-in-out 2s infinite;
-}
-.logo-wrap:hover .logo-img {
-  filter:
-    drop-shadow(0 0 20px rgba(180,0,0,0.80))
-    drop-shadow(0 0 55px rgba(139,0,0,0.35))
-    drop-shadow(0 0 90px rgba(139,0,0,0.12));
-  transform: scale(1.03);
-}
-
-/* Legacy SVG fallback (hidden once img is used) */
-.logo-svg {
-  width: 160px; height: 190px;
-  position: relative;
-  z-index: 2;
-  filter:
-    drop-shadow(0 0 12px rgba(139,0,0,0.55))
-    drop-shadow(0 0 35px rgba(139,0,0,0.20));
-  transition: filter 0.5s ease;
-}
-.logo-wrap:hover .logo-svg {
-  filter:
-    drop-shadow(0 0 22px rgba(180,0,0,0.85))
-    drop-shadow(0 0 60px rgba(139,0,0,0.38));
-}
-
-/* â”€â”€â”€ BRAND NAME â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.brand-name {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(3rem, 9vw, 7rem);
-  font-weight: 900;
-  letter-spacing: 0.52em;
-  padding-left: 0.52em;
-  color: #fff;
-  text-transform: uppercase;
-  line-height: 1;
-  text-align: center;
-  margin-bottom: 0.8rem;
-  opacity: 0;
-  animation: revealUp 1.4s cubic-bezier(0.16,1,0.3,1) 0.65s forwards;
-  text-shadow:
-    0 0 80px rgba(139,0,0,0.22),
-    0 0 200px rgba(139,0,0,0.08),
-    0 2px 6px rgba(0,0,0,0.95);
-  will-change: transform;
-}
-
-/* â”€â”€â”€ SUBTITLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.subtitle {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-weight: 300;
-  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
-  letter-spacing: 0.45em;
-  padding-left: 0.45em;
-  color: rgba(255,255,255,0.65);
-  text-transform: uppercase;
-  text-align: center;
-  margin-bottom: 2.6rem;
-  opacity: 0;
-  animation: fadeIn 1.6s ease 0.95s forwards;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.8);
-}
-
-/* â”€â”€â”€ HORIZONTAL RULE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.rule {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  width: min(380px, 90%);
-  margin-bottom: 3rem;
-  opacity: 0;
-  animation: fadeIn 1.2s ease 1.1s forwards;
-}
-.rule::before, .rule::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent,
-    rgba(139,0,0,0.5));
-}
-.rule::after {
-  background: linear-gradient(90deg,
-    rgba(139,0,0,0.5),
-    transparent);
-}
-.rule-diamond {
-  width: 7px; height: 7px;
-  background: var(--red);
-  transform: rotate(45deg);
-  flex-shrink: 0;
-}
-
-/* â”€â”€â”€ COUNTDOWN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.countdown {
-  display: flex;
-  align-items: flex-start;
-  gap: clamp(0.6rem, 3vw, 2.2rem);
-  justify-content: center;
-  margin-bottom: 3.5rem;
-  opacity: 0;
-  animation: fadeIn 1.4s ease 1.2s forwards;
-}
-.count-unit {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.55rem;
-}
-.count-num-wrap {
-  position: relative;
-  overflow: hidden;
-}
-.count-number {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(2.2rem, 6.5vw, 4.2rem);
-  font-weight: 400;
-  line-height: 1;
-  color: #fff;
-  min-width: 2.2ch;
-  text-align: center;
-  display: block;
-  transition: opacity 0.12s ease, transform 0.12s ease;
-}
-.count-number.flash {
-  animation: countFlash 0.14s ease;
-}
-/* Bottom accent bar */
-.count-unit::after {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent, var(--red), transparent);
-  margin-top: -0.5rem;
-}
-.count-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.28em;
-  color: rgba(255,255,255,0.32);
-  text-transform: uppercase;
-}
-.count-sep {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(2.2rem, 6.5vw, 4.2rem);
-  color: var(--red);
-  line-height: 1;
-  opacity: 0.55;
-  padding-bottom: 1.1rem; /* align to number baseline */
-  flex-shrink: 0;
-}
-
-/* â”€â”€â”€ NOTIFY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.notify-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.9rem;
-  width: min(440px, 92vw);
-  margin-bottom: 2.6rem;
-  opacity: 0;
-  animation: fadeIn 1.4s ease 1.45s forwards;
-}
-.notify-label {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.32em;
-  color: rgba(255,255,255,0.60);
-  text-transform: uppercase;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.7);
-}
-.notify-form {
-  display: flex;
-  width: 100%;
-  border: 1px solid rgba(139,0,0,0.28);
-  transition: border-color 0.4s ease, box-shadow 0.4s ease;
-}
-.notify-form:focus-within {
-  border-color: rgba(139,0,0,0.75);
-  box-shadow:
-    0 0 25px rgba(139,0,0,0.12),
-    inset 0 0 20px rgba(139,0,0,0.04);
-}
-.notify-input {
-  flex: 1;
-  background: rgba(255,255,255,0.025);
-  border: none;
-  outline: none;
-  padding: 1rem 1.3rem;
-  color: #fff;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.95rem;
-  letter-spacing: 0.12em;
-}
-.notify-input::placeholder {
-  color: rgba(255,255,255,0.16);
-}
-.notify-btn {
-  background: var(--red);
-  border: none;
-  outline: none;
-  padding: 1rem 1.6rem;
-  color: #fff;
-  font-family: 'Cinzel', serif;
-  font-size: 0.58rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.35s ease, box-shadow 0.35s ease, letter-spacing 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-.notify-btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,0);
-  transition: background 0.3s ease;
-}
-.notify-btn:hover {
-  background: #a80000;
-  box-shadow: 0 0 30px rgba(139,0,0,0.55), 0 0 60px rgba(139,0,0,0.2);
-  letter-spacing: 0.35em;
-}
-.notify-btn:active { transform: scale(0.98); }
-
-.notify-success {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 0.88rem;
-  letter-spacing: 0.18em;
-  color: rgba(255,255,255,0.4);
-  display: none;
-  text-align: center;
-  animation: fadeIn 0.7s ease forwards;
-}
-.notify-success span {
-  color: var(--red);
-}
-
-/* â”€â”€â”€ SEPARATOR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.sep-line {
-  width: 1px;
-  height: 40px;
-  background: linear-gradient(to bottom, rgba(139,0,0,0.5), transparent);
-  margin-bottom: 2rem;
-  opacity: 0;
-  animation: fadeIn 1s ease 1.65s forwards;
-}
-
-/* â”€â”€â”€ SOCIALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.socials {
-  display: flex;
-  align-items: center;
-  gap: 2.4rem;
-  opacity: 0;
-  animation: fadeIn 1.4s ease 1.7s forwards;
-}
-.social-link {
-  color: rgba(255,255,255,0.25);
-  transition: color 0.4s ease, filter 0.4s ease, transform 0.4s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  padding: 4px;
-}
-.social-link:hover {
-  color: var(--red);
-  filter: drop-shadow(0 0 8px rgba(139,0,0,0.65));
-  transform: translateY(-3px);
-}
-.social-link svg {
-  width: 18px; height: 18px;
-}
-
-/* â”€â”€â”€ FOOTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.footer {
-  position: fixed;
-  bottom: 1.4rem;
-  left: 0; right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1.5rem;
-  opacity: 0;
-  animation: fadeIn 1.4s ease 2.1s forwards;
-  z-index: 5;
-}
-.footer-text {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.28em;
-  color: rgba(255,255,255,0.45);
-  text-transform: uppercase;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
-}
-.footer-dot {
-  width: 3px; height: 3px;
-  background: rgba(139,0,0,0.7);
-  border-radius: 50%;
-}
-
-/* â”€â”€â”€ CURSOR GLOW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.cursor-glow {
-  position: fixed;
-  width: 300px; height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    rgba(139,0,0,0.06) 0%,
-    transparent 70%);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  transition: opacity 0.3s ease;
-}
-
-/* â”€â”€â”€ KEYFRAMES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes revealDrop {
-  from { opacity: 0; transform: translateY(-40px) scale(0.9); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes revealUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.7; transform: scale(0.97); }
-  50%       { opacity: 1;   transform: scale(1.03); }
-}
-@keyframes rotateSlow {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-@keyframes countFlash {
-  0%   { opacity: 0; transform: translateY(-12px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.2; }
-}
-@keyframes logoBreath {
-  0%, 100% { filter:
-    drop-shadow(0 0 12px rgba(139,0,0,0.55))
-    drop-shadow(0 0 35px rgba(139,0,0,0.20)); }
-  50% { filter:
-    drop-shadow(0 0 20px rgba(180,0,0,0.80))
-    drop-shadow(0 0 55px rgba(139,0,0,0.35)); }
-}
-
-/* â”€â”€â”€ RESPONSIVE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-@media (max-width: 500px) {
-  .logo-img  { width: 160px; }
-  .logo-svg  { width: 120px; height: 145px; }
-  .count-sep { display: none; }
-  .countdown { gap: 1.2rem; }
-  .brand-name { letter-spacing: 0.35em; padding-left: 0.35em; }
-  .nav-bar { padding: 1rem 1.2rem; }
-}
-</style>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DRACO — Cinematic Luxury Landing Page</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
 <body>
 
-<canvas id="canvas-bg"></canvas>
-<div class="vignette"></div>
-<div class="scanlines"></div>
-<div class="cursor-glow" id="cursorGlow"></div>
+    <canvas id="canvas-bg"></canvas>
+    <div class="vignette"></div>
+    <div class="scanlines"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
 
-<!-- Top nav bar -->
-<nav class="nav-bar">
-  <span class="nav-wordmark">Draco â€” House of the Dragon</span>
-  <span class="nav-status">Launching Soon</span>
-</nav>
+    <!-- Top nav bar -->
+    <nav class="nav-bar">
+        <span class="nav-wordmark">Draco — BREAK YOUR LIMITS</span>
+        <span class="nav-status">Launching Soon</span>
+    </nav>
 
-<!-- Main page -->
-<main class="page" id="page">
+    <!-- Main page -->
+    <main class="page" id="page">
 
-  <!-- Logo -->
-  <div class="logo-wrap" id="logoWrap">
-    <div class="logo-ring"></div>
-    <div class="logo-tick"></div>
+        <!-- Logo Section -->
+        <div class="logo-wrap" id="logoWrap">
+            <div class="logo-ring"></div>
+            <div class="logo-tick"></div>
+            <img class="logo-img" src="assets/logo.png" alt="DRACO Dragon Logo" width="160" height="auto" draggable="false"/>
+        </div>
 
-    <!-- DRACO Logo Image -->
-    <img
-      class="logo-img"
-      src="assets/logo2.png"
-      alt="DRACO Dragon Logo"
-      width="160"
-      height="auto"
-      draggable="false"
-    />
-    <!-- END LOGO PLACEHOLDER -->
-  </div>
+        <!-- Brand name -->
+        <h1 class="brand-name" id="brandName">DRACO</h1>
 
-  <!-- Brand name -->
-  <h1 class="brand-name" id="brandName">DRACO</h1>
+        <!-- Subtitle -->
+        <p class="subtitle">Dropping Soon</p>
 
-  <!-- Subtitle -->
-  <p class="subtitle">Dropping Soon</p>
+        <!-- Ornamental rule -->
+        <div class="rule">
+            <div class="rule-diamond"></div>
+        </div>
 
-  <!-- Ornamental rule -->
-  <div class="rule"><div class="rule-diamond"></div></div>
+        <!-- Countdown -->
+        <div class="countdown">
+            <div class="count-unit">
+                <div class="count-num-wrap"><span class="count-number" id="cnt-days">00</span></div>
+                <span class="count-label">Days</span>
+            </div>
+            <span class="count-sep">:</span>
+            <div class="count-unit">
+                <div class="count-num-wrap"><span class="count-number" id="cnt-hours">00</span></div>
+                <span class="count-label">Hours</span>
+            </div>
+            <span class="count-sep">:</span>
+            <div class="count-unit">
+                <div class="count-num-wrap"><span class="count-number" id="cnt-min">00</span></div>
+                <span class="count-label">Mins</span>
+            </div>
+            <span class="count-sep">:</span>
+            <div class="count-unit">
+                <div class="count-num-wrap"><span class="count-number" id="cnt-sec">00</span></div>
+                <span class="count-label">Secs</span>
+            </div>
+        </div>
 
-  <!-- Countdown -->
-  <div class="countdown">
-    <div class="count-unit">
-      <div class="count-num-wrap">
-        <span class="count-number" id="cnt-days">00</span>
-      </div>
-      <span class="count-label">Days</span>
-    </div>
-    <span class="count-sep">:</span>
-    <div class="count-unit">
-      <div class="count-num-wrap">
-        <span class="count-number" id="cnt-hours">00</span>
-      </div>
-      <span class="count-label">Hours</span>
-    </div>
-    <span class="count-sep">:</span>
-    <div class="count-unit">
-      <div class="count-num-wrap">
-        <span class="count-number" id="cnt-min">00</span>
-      </div>
-      <span class="count-label">Mins</span>
-    </div>
-    <span class="count-sep">:</span>
-    <div class="count-unit">
-      <div class="count-num-wrap">
-        <span class="count-number" id="cnt-sec">00</span>
-      </div>
-      <span class="count-label">Secs</span>
-    </div>
-  </div>
+        <!-- Notify section -->
+        <div class="notify-wrap">
+            <p class="notify-label">Gain early access</p>
+            <div class="notify-form" id="notifyForm">
+                <input type="email" class="notify-input" id="emailInput" placeholder="your@email.com" autocomplete="email" spellcheck="false"/>
+                <button class="notify-btn" id="notifyBtn" onclick="handleNotify()">Notify Me</button>
+            </div>
+            <p class="notify-success" id="notifySuccess">
+                You're on the list — <span>the throne awaits.</span>
+            </p>
+        </div>
 
-  <!-- Notify section -->
-  <div class="notify-wrap">
-    <p class="notify-label">Gain early access</p>
-    <div class="notify-form" id="notifyForm">
-      <input
-        type="email"
-        class="notify-input"
-        id="emailInput"
-        placeholder="your@email.com"
-        autocomplete="email"
-        spellcheck="false"
-      />
-      <button class="notify-btn" id="notifyBtn" onclick="handleNotify()">Notify Me</button>
-    </div>
-    <p class="notify-success" id="notifySuccess">
-      You're on the list â€” <span>the throne awaits.</span>
-    </p>
-  </div>
+        <!-- Vertical separator -->
+        <div class="sep-line"></div>
 
-  <!-- Vertical separator -->
-  <div class="sep-line"></div>
+        <!-- Social icons -->
+        <div class="socials">
+            <a href="#" class="social-link" aria-label="Facebook">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                </svg>
+            </a>
+            <a href="https://www.instagram.com/dracowear._/" class="social-link" aria-label="Instagram">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5"/>
+                    <circle cx="12" cy="12" r="4.5"/>
+                    <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"/>
+                </svg>
+            </a>
+            <a href="#" class="social-link" aria-label="TikTok">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                </svg>
+            </a>
+        </div>
 
-  <!-- Social icons -->
-  <div class="socials">
-    <!-- Instagram -->
-    <a href="https://www.instagram.com/dracowear._/" class="social-link" aria-label="Instagram">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="5"/>
-        <circle cx="12" cy="12" r="4.5"/>
-        <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"/>
-      </svg>
-    </a>
-    <!-- TikTok -->
-    <a href="#" class="social-link" aria-label="TikTok">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34v-7a8.16 8.16 0 0 0 4.77 1.52V6.4a4.85 4.85 0 0 1-1-.29z"/>
-      </svg>
-    </a>
-    <!-- X / Twitter -->
-    <a href="#" class="social-link" aria-label="X">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.263 5.633zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-      </svg>
-    </a>
-    <!-- Pinterest -->
-    <a href="#" class="social-link" aria-label="Pinterest">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
-      </svg>
-    </a>
-  </div>
+    </main>
 
-</main>
+    <!-- Footer -->
+    <footer class="footer">
+        <span class="footer-text">© 2026 DRACO</span>
+        <div class="footer-dot"></div>
+        <span class="footer-text">FOR THOSE WHO MOVE DIFFERENTLY AND NEVER EXPLAIN WHY</span>
+        <div class="footer-dot"></div>
+        <span class="footer-text">All Rights Reserved</span>
+    </footer>
 
-<!-- Footer -->
-<footer class="footer">
-  <span class="footer-text">© 2026 DRACO</span>
-  <div class="footer-dot"></div>
-  <span class="footer-text">All Rights Reserved</span>
-  <div class="footer-dot"></div>
-  <span class="footer-text">House of the Dragon</span>
-</footer>
-
-<script>
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   PARTICLE / EMBER SYSTEM
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-(function() {
-  const canvas = document.getElementById('canvas-bg');
-  const ctx    = canvas.getContext('2d');
-  let W, H;
-
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  class Particle {
-    constructor(scattered) {
-      this.scattered = scattered;
-      this.reset(true);
-    }
-    reset(initial) {
-      this.x      = Math.random() * W;
-      this.y      = initial ? Math.random() * H : H + 20;
-      this.r      = Math.random() * 1.8 + 0.4;
-      this.vy     = -(Math.random() * 0.6 + 0.15);
-      this.vx     = (Math.random() - 0.5) * 0.22;
-      this.life   = 0;
-      this.maxLife = Math.random() * 260 + 120;
-      this.alpha  = Math.random() * 0.38 + 0.04;
-      // ~30% blood red, 70% dark smoke
-      this.red    = Math.random() < 0.3;
-      if (initial) this.life = Math.random() * this.maxLife;
-    }
-    update() {
-      this.x    += this.vx;
-      this.y    += this.vy;
-      this.life ++;
-      // sine drift
-      this.x += Math.sin(this.life * 0.015) * 0.18;
-      const t = this.life / this.maxLife;
-      // fade in 0-20%, hold 20-75%, fade out 75-100%
-      if (t < 0.2)      this.a = this.alpha * (t / 0.2);
-      else if (t > 0.75) this.a = this.alpha * (1 - (t - 0.75) / 0.25);
-      else               this.a = this.alpha;
-      if (this.life >= this.maxLife || this.y < -10) this.reset(false);
-    }
-    draw() {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle = this.red
-        ? `rgba(139,0,0,${this.a})`
-        : `rgba(28,18,18,${this.a * 1.4})`;
-      ctx.fill();
-    }
-  }
-
-  // Larger smoke wisps
-  class Wisp {
-    constructor() { this.reset(true); }
-    reset(initial) {
-      this.x    = Math.random() * W;
-      this.y    = initial ? Math.random() * H : H + 40;
-      this.r    = Math.random() * 18 + 10;
-      this.vy   = -(Math.random() * 0.25 + 0.06);
-      this.vx   = (Math.random() - 0.5) * 0.1;
-      this.life = 0;
-      this.maxLife = Math.random() * 400 + 200;
-      this.alpha = Math.random() * 0.055 + 0.01;
-      if (initial) this.life = Math.random() * this.maxLife;
-    }
-    update() {
-      this.x   += this.vx;
-      this.y   += this.vy;
-      this.life++;
-      const t = this.life / this.maxLife;
-      this.r  += 0.04;
-      if (t < 0.15)      this.a = this.alpha * (t / 0.15);
-      else if (t > 0.65) this.a = this.alpha * (1 - (t - 0.65) / 0.35);
-      else               this.a = this.alpha;
-      if (this.life >= this.maxLife || this.y < -60) this.reset(false);
-    }
-    draw() {
-      const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r);
-      g.addColorStop(0, `rgba(60,0,0,${this.a})`);
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle = g;
-      ctx.fill();
-    }
-  }
-
-  const particles = Array.from({ length: 110 }, () => new Particle(true));
-  const wisps     = Array.from({ length: 18  }, () => new Wisp());
-
-  function loop() {
-    ctx.clearRect(0, 0, W, H);
-    wisps.forEach(w => { w.update(); w.draw(); });
-    particles.forEach(p => { p.update(); p.draw(); });
-    requestAnimationFrame(loop);
-  }
-  loop();
-})();
-
-
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   COUNTDOWN TIMER
-   Target: September 9, 2026, midnight
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-(function() {
-  const TARGET = new Date('2026-09-09T00:00:00').getTime();
-
-  function pad(n) { return String(n).padStart(2, '0'); }
-
-  function setField(id, val) {
-    const el  = document.getElementById(id);
-    const str = pad(val);
-    if (el.textContent !== str) {
-      el.textContent = str;
-      el.classList.remove('flash');
-      void el.offsetWidth;
-      el.classList.add('flash');
-    }
-  }
-
-  function tick() {
-    const diff = TARGET - Date.now();
-    if (diff <= 0) {
-      ['cnt-days','cnt-hours','cnt-min','cnt-sec'].forEach(id =>
-        document.getElementById(id).textContent = '00');
-      return;
-    }
-    const s = Math.floor(diff / 1000);
-    setField('cnt-days',  Math.floor(s / 86400));
-    setField('cnt-hours', Math.floor((s % 86400) / 3600));
-    setField('cnt-min',   Math.floor((s % 3600)  / 60));
-    setField('cnt-sec',   s % 60);
-  }
-
-  tick();
-  setInterval(tick, 1000);
-})();
-
-
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   MOUSE PARALLAX
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-(function() {
-  let mx = 0, my = 0;
-  let cx = 0, cy = 0;
-
-  const logo  = document.getElementById('logoWrap');
-  const title = document.getElementById('brandName');
-  const glow  = document.getElementById('cursorGlow');
-
-  document.addEventListener('mousemove', e => {
-    mx = (e.clientX / window.innerWidth  - 0.5) * 2;
-    my = (e.clientY / window.innerHeight - 0.5) * 2;
-    glow.style.left = e.clientX + 'px';
-    glow.style.top  = e.clientY + 'px';
-  });
-
-  document.addEventListener('mouseleave', () => {
-    glow.style.opacity = '0';
-  });
-  document.addEventListener('mouseenter', () => {
-    glow.style.opacity = '1';
-  });
-
-  function frame() {
-    // Smooth interpolation
-    cx += (mx - cx) * 0.06;
-    cy += (my - cy) * 0.06;
-
-    logo.style.transform  = `translate(${cx * 18}px, ${cy * 12}px)`;
-    title.style.transform = `translate(${cx * 9}px,  ${cy * 5}px)`;
-
-    requestAnimationFrame(frame);
-  }
-  frame();
-})();
-
-
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   NOTIFY HANDLER
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-function handleNotify() {
-  const input   = document.getElementById('emailInput');
-  const form    = document.getElementById('notifyForm');
-  const success = document.getElementById('notifySuccess');
-
-  const email = input.value.trim();
-
-  if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-
-    emailjs.send("service_bdheq4c", "template_b2djqxk", {
-      user_email: email
-    })
-    .then(() => {
-      form.style.opacity = '0';
-      setTimeout(() => {
-        form.style.display = 'none';
-        success.style.display = 'block';
-      }, 400);
-    })
-    .catch(() => {
-      alert("حصل خطأ في الإرسال ❌");
-    });
-
-  } else {
-    input.style.borderBottom = '1px solid rgba(255,60,60,0.6)';
-    input.focus();
-  }
-}
-
-document.getElementById('emailInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') handleNotify();
-});
-</script>
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-
-<script>
-  (function(){
-    emailjs.init("nzIEIZr5Wa7d-YsMe");
-  })();
-</script>
+    <!-- External JavaScript -->
+    <script src="script.js"></script>
 </body>
 </html>
