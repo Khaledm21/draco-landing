@@ -90,20 +90,16 @@ body {
   top: 0; 
   left: 0; 
   right: 0;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  padding: 1.4rem 2.5rem;
-
-  z-index: 1000;
-
-  backdrop-filter: blur(6px); /* يخليه فخم 🔥 */
-  background: rgba(0,0,0,0.2); /* خفيف جدًا */
-
+  padding: 1rem 2.5rem;
+  z-index: 2000; 
+  backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.2); 
   opacity: 0;
   animation: fadeIn 1.6s ease 2s forwards;
+  border-bottom: 1px solid rgba(255, 0, 0, 0.1);
 }
 
 .nav-bar::after {
@@ -334,7 +330,19 @@ body {
   gap: 0.55rem;
 }
 
-.count-num-wrap { position: relative; overflow: hidden; }
+.count-num-wrap { 
+  position: relative; 
+  overflow: hidden; 
+  background: radial-gradient(circle at center, rgba(255, 0, 0, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 0, 0, 0.15);
+  border-radius: 12px; 
+  padding: 10px 15px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 15px rgba(255, 0, 0, 0.05),
+    inset 0 0 1px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+}
 
 .count-number {
   font-family: 'Share Tech Mono', monospace;
@@ -603,7 +611,8 @@ body {
   }
 
   .nav-bar {
-    padding: 1rem 1.5rem;
+    padding: 0.8rem 1.2rem;
+    background: rgba(0, 0, 0, 0.3); /* More transparent */
   }
 
   .nav-wordmark {
