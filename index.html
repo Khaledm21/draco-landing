@@ -901,25 +901,39 @@ function handleNotify() {
   const success = document.getElementById('notifySuccess');
 
   const email = input.value.trim();
+
   if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    form.style.opacity    = '0';
-    form.style.transition = 'opacity 0.4s ease';
-    setTimeout(() => {
-      form.style.display   = 'none';
-      success.style.display = 'block';
-    }, 400);
+
+    emailjs.send("service_bdheq4c", "template_b2djqxk", {
+      user_email: email
+    })
+    .then(() => {
+      form.style.opacity = '0';
+      setTimeout(() => {
+        form.style.display = 'none';
+        success.style.display = 'block';
+      }, 400);
+    })
+    .catch(() => {
+      alert("حصل خطأ في الإرسال ❌");
+    });
+
   } else {
     input.style.borderBottom = '1px solid rgba(255,60,60,0.6)';
     input.focus();
-    input.style.animation = 'none';
-    void input.offsetWidth;
-    setTimeout(() => { input.style.borderBottom = ''; }, 2000);
   }
 }
 
 document.getElementById('emailInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') handleNotify();
 });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<script>
+  (function(){
+    emailjs.init("nzIEIZr5Wa7d-YsMe");
+  })();
 </script>
 </body>
 </html>
