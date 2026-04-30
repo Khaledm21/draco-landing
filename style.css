@@ -25,6 +25,9 @@ body {
   overflow-x: hidden;
   cursor: none; /* Custom cursor glow used */
   padding-top: 80px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
 }
 
 /* ──── CANVAS / BACKGROUND ──────────────── */
