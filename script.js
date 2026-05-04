@@ -109,7 +109,7 @@ window.scrollTo(0, 0);
 
 /* ──── COUNTDOWN TIMER ───────────────────────── */
 (function() {
-  const TARGET = new Date('2026-05-05T00:00:00').getTime();
+  const TARGET = new Date('2026-05-06T00:00:00').getTime();
   const fields = ['cnt-days','cnt-hours','cnt-min','cnt-sec'];
 
   function pad(n) { return String(n).padStart(2, '0'); }
